@@ -1,4 +1,5 @@
 <?php
+require_once('../dbconnect.php');
 session_start();
 
 //入力の確認
@@ -25,6 +26,19 @@ if(!empty($_POST)){
             $error['image'] = 'type';
         }
     }
+
+    //重複アカウントのチェック
+    if(empty($error)){
+        //SQLで同一のメールアドレスのカウントチェック
+        $sql = "SELECT COUNT(*) AS cnt FROM members WHERE email=?";
+        $member = $db->prepare($sql);
+        $member->execute(array($_POST['email']));
+        $record = $member->fetch();
+        
+        if($record['cnt'] > 0){
+            $error['email'] = 'duplicate';
+        }
+    }
     
     //エラーがない場合
     if(empty($error)){
@@ -37,6 +51,12 @@ if(!empty($_POST)){
         header('Location: check.php');
         exit();
     }
+}
+
+//書き直し
+if($_GET['action'] == 'rewrite'){
+    $_POST = $_SESSION['join'];
+    $error['rewrite'] = true;
 }
 ?>
 <!DOCTYPE html>
@@ -69,6 +89,8 @@ if(!empty($_POST)){
                         <input type="text" name="email" size="35" maxlength="255" value="<?php echo htmlspecialchars($_POST['email'],ENT_QUOTES); ?>">
                         <?php if($error['email'] == 'blank'): ?>
                         <p class="error">*メールアドレスを入力してください</p>
+                        <?php elseif($error['email'] == 'duplicate'): ?>
+                        <p class="error">*指定されたメールアドレスはすでに登録されています</p>
                         <?php endif; ?>
                     </dd>
                     <dt>パスワード<span class="required">必須</span></dt>
