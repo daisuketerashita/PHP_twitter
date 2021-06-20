@@ -24,12 +24,11 @@ if(isset($_SESSION['id']) && $_SESSION['time'] + 3600 > time()){
 if(!empty($_POST)){
     if($_POST['message'] !== ''){
         //SQL
-        $sql = "INSERT INTO posts SET member_id=?,message=?,reply_post_id=?,created=NOW()";
+        $sql = "INSERT INTO posts SET member_id=?,message=?,created=NOW()";
         //配列
         $array = array(
             $member['id'],
             $_POST['message'],
-            $_POST['reply_post_id']
         );
 
         $message = $db->prepare($sql);
@@ -72,30 +71,35 @@ if(isset($_GET['res'])){
     <h1>ひとこと掲示板</h1>
   </div>
   <div id="content">
-    <form action="" method="post">
-        <dl>
-            <dt><?php echo htmlspecialchars($member['name'],ENT_QUOTES); ?>さん、メッセージをどうぞ</dt>
-            <dd>
-                <textarea name="message" id="" cols="50" rows="10"><?php echo htmlspecialchars($message,ENT_QUOTES); ?></textarea>
-                <input type="hidden" name="reply_post_id" value="<?php echo htmlspecialchars($_GET['res'],ENT_QUOTES); ?>">
-            </dd>
-        </dl>
-        <div>
-            <input type="submit" value="投稿する">
-        </div>
-    </form>
+		<form action="" method="post">
+		<dl>
+			<dt><?php echo htmlspecialchars($member['name']); ?>さん、メッセージをどうぞ</dt>
+		<dd>
+		<textarea name="message" cols="50" rows="5"><?php echo htmlspecialchars($message, ENT_QUOTES); ?></textarea>
+		<input type="hidden" name="reply_post_id" value="<?php echo htmlspecialchars($_GET['res'], ENT_QUOTES); ?>" />
+		</dd>
+		</dl>
+		<div>
+		<input type="submit" value="投稿する" />
+		</div>
+		</form>
 
-    <?php foreach($posts as $post): ?>
-    <div class="msg">
-        <img src="member_picture/<?php echo htmlspecialchars($post['picture'],ENT_QUOTES); ?>" width="48" height="48" alt="">
-        <p>
-            <?php echo htmlspecialchars($post['message'],ENT_QUOTES); ?><span class="name">（<?php echo htmlspecialchars($post['name'],ENT_QUOTES); ?>）</span>
-            [<a href="index.php?res=<?php echo htmlspecialchars($post['id'],ENT_QUOTES); ?>">Re</a>]
-        </p>
-        <p class="day"><?php echo htmlspecialchars($post['created'],ENT_QUOTES); ?></p>
-    </div>
-    <?php endforeach; ?>
+		<?php
+		foreach ($posts as $post):
+		?>
+		<div class="msg">
+			<img src="member_picture/<?php echo htmlspecialchars($post['picture'], ENT_QUOTES, 'UTF-8'); ?>" width="48" height="48" alt="<?php echo htmlspecialchars($post['name'], ENT_QUOTES); ?>" />
+			<p><?php echo htmlspecialchars($post['message'], ENT_QUOTES);?><span class="name">（<?php echo htmlspecialchars($post['name'], ENT_QUOTES); ?>）</span>
+			[<a href="index.php?res=<?php echo htmlspecialchars($post['id'], ENT_QUOTES); ?>">Re</a>]</p>
+			<p class="day"><a href="view.php?id=<?php echo htmlspecialchars($post['id'], ENT_QUOTES); ?>"><?php echo htmlspecialchars($post['created'], ENT_QUOTES); ?></a>
+			</p>
+		</div>
+		<?php
+		endforeach;
+		?>
   </div>
+
 </div>
 </body>
+
 </html>
